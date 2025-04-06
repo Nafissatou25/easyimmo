@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}EasyImmo - Votre agence immobilière{% endblock %}</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css">
+        <link rel="stylesheet" href="{{ asset('build/app.css') }}">
+        {% block stylesheets %}{% endblock %}
+    </head>
+    
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <a class="navbar-brand" href="{{ path('home') }}">
+                <img src="{{ asset('images/Logo_EasyImmo.png') }}" alt="EasyImmo Logo" style="height: 60px;">
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link{% if current_menu is defined and current_menu == 'properties' %} active{% endif %}" href="{{ path('property.index') }}">Acheter</a>
+                    </li>
+                </ul>
+                
+                {% if app.user %}
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a href="{{ path('logout') }}" class="nav-link">Se déconnecter</a>              
+                        </li>
+                    </ul>
+                {% else %}
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a href="{{ path('login') }}" class="nav-link">Connexion</a>              
+                        </li>
+                    </ul>
+                {% endif %}
+            </div>
+        </nav>
+
+        {% block body %}
+            <div class="jumbotron jumbotron-fluid bg-primary text-white text-center py-5">
+                <div class="container">
+                    <h1 class="display-4 mb-4">EasyImmo</h1>
+                    <p class="lead">
+                        Votre partenaire immobilier de confiance depuis plusieurs années.<br>
+                        Spécialistes de l'achat, vente et location dans toute le Cameroun.
+                    </p>
+                    <hr class="my-4 bg-light">
+                    <div class="row mt-5">
+                        <div class="col-md-4">
+                            <i class="fas fa-home fa-3x mb-3"></i>
+                            <h3>Expertise Locale</h3>
+                            <p>Notre équipe connaît parfaitement le marché immobilier local</p>
+                        </div>
+                        <div class="col-md-4">
+                            <i class="fas fa-euro-sign fa-3x mb-3"></i>
+                            <h3>Meilleurs Prix</h3>
+                            <p>Nous négocions pour vous les conditions les plus avantageuses</p>
+                        </div>
+                        <div class="col-md-4">
+                            <i class="fas fa-lock fa-3x mb-3"></i>
+                            <h3>Sécurité</h3>
+                            <p>Transactions 100% sécurisées avec accompagnement juridique</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container py-5">
+                <h2 class="text-center mb-5">Nos dernières offres</h2>
+                <div class="row">
+                    {% for property in properties %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            {% if property.filename %}
+                                <img src="{{ vich_uploader_asset(property, 'imageFile') | imagine_filter('thumb') }}" 
+                                     class="card-img-top" 
+                                     alt="{{ property.title }}"
+                                     style="height: 200px; object-fit: cover;">
+                            {% else %}
+                                <img src="{{ '/images/properties/placeholder.jpg' | imagine_filter('thumb') }}" 
+                                     class="card-img-top" 
+                                     alt="Image par défaut"
+                                     style="height: 200px; object-fit: cover;">
+                            {% endif %}
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">
+                                    <a href="{{ path('property.show', {id: property.id, slug: property.slug}) }}" class="text-dark">
+                                        {{ property.title }}
+                                    </a>
+                                </h5>
+                                <p class="card-text text-muted">
+                                    <i class="fas fa-map-marker-alt"></i> {{ property.city }} ({{ property.postalCode }})
+                                </p>
+                                <div class="text-primary mt-auto" style="font-weight: bold; font-size: 1.5rem;">
+                                    {{ property.formattedPrice }} €
+                                </div>
+                                <div class="mt-2">
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-bed"></i> {{ property.bedrooms }} chambres
+                                    </span>
+                                    <span class="badge bg-secondary ms-2">
+                                        <i class="fas fa-ruler-combined"></i> {{ property.surface }} m²
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="{{ path('property.index') }}" class="btn btn-primary btn-lg">
+                        Voir toutes nos propriétés <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        {% endblock %}
+        
+        <footer class="bg-dark text-white py-4 mt-5">
+            <div class="container text-center">
+                <p>&copy; {{ 'now'|date('Y') }} EasyImmo - Tous droits réservés</p>
+                <p>
+                    <a href="#" class="text-white">Mentions légales</a> | 
+                    <a href="#" class="text-white">Contact</a> | 
+                    <a href="#" class="text-white">CGU</a>
+                </p>
+            </div>
+        </footer>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+        <script src="{{ asset('build/app.js') }}"></script>
+        {% block javascripts %}{% endblock %}
+    </body>
+</html>
